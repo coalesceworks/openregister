@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	
+
+	<scripting:transformer name="MapToAddressTransformer">
+        <scripting:script engine="Groovy">
+            <![CDATA[
+                import com.electrol.opr.middleware.schema.openregister._0._1.Address
+                import com.electrol.opr.middleware.schema.openregister._0._1.Country
+                import com.electrol.opr.middleware.schema.openregister._0._1.Action
+
+                Address address = new Address()
+                address.addressCheckRef = payload.acRef
+                address.isValid = payload.isvalid
+                address.houseNumber = payload.houseNumber
+                address.street = payload.street
+                address.city = payload.city
+                address.county = payload.county
+                address.postCode = payload.postCode
+                address.country = payload.country ? ((payload.country)?.toUpperCase()) as Country : null
+                address.type = payload.action ? ((payload.action)?.toUpperCase()) as Action : null
+
+                address
+            ]]>
+
+        </scripting:script>
+    </scripting:transformer>
+
+    <flow  name="AddressCheckFlow">
+		<vm:inbound-endpoint ref="addressCheckEPR" exchange-pattern="request-response"/>
+		
+		<set-variable variableName="action" value="#[json:action]" doc:name="Variable to address action" />
+		<choice>
+			<when expression="#[flowVars.action == 'register']">
+				<scripting:transformer name="jsonToAddressCheckReq" doc:name="Transform input json To Address Check Request XML">
+					<scripting:script engine="Groovy">
+						<![CDATA[
+							import groovy.xml.StreamingMarkupBuilder
+							import groovy.json.JsonSlurper
+							import java.io.StringWriter
+							
+							String buildRequest(def json)
+							{
+								def builder = new StreamingMarkupBuilder(useDoubleQuotes: true)
+								builder.encoding = 'UTF-8'
+								def results = builder.bind {
+									mkp.xmlDeclaration()
+									namespaces << [ns0:'http://schemas.po.co.uk/services/address/2017']
+									ns0.addressCheck {
+										ns0.postCode(json.postCode)
+										ns0.houseNumber(json.houseNumber)
+										ns0.street(json.street)
+										ns0.city(json.city)							
+									}
+								}
+								(new StringWriter() << results).toString()
+							}
+							
+							buildRequest(new JsonSlurper().parseText(payload?.toString()))
+						]]>
+					</scripting:script>
+				</scripting:transformer>
+				
+				<logger level="INFO" message="transformed payload #[payload]"/>
+				
+				<http:request config-ref="AddressCheckHttpConfig" path="${address.check.uri}" method="POST" doc:name="Address Check Service"/>
+				
+				<transformer ref="erToStringTrasformer"  doc:name="Transform restponse to String"/>
+				<scripting:transformer name="AddressCheckResToMap" doc:name="Address Check Response XML To Map">
+					<scripting:script engine="Groovy">
+						<![CDATA[
+							def adr = new groovy.util.XmlSlurper().parseText(message.getPayload()?.toString())
+											.declareNamespace(a:'http://schemas.po.co.uk/services/address/2017')
+
+							["action": "register",
+								"isvalid": ((adr.'a:isvalid'.text()) as Boolean),
+								"houseNumber": (adr.'a:houseNumber'.text())?.trim(),
+								"street": (adr.'a:street'.text())?.trim(),
+								"city": (adr.'a:city'.text())?.trim(),
+								"county": (adr.'a:county'.text())?.trim(),
+								"country": (adr.'a:country'.text())?.trim(),
+								"postCode": (adr.'a:postCode'.text())?.trim(),
+								"acRef": (adr.'a:acRef'.text())?.trim()]
+							
+						]]>
+					</scripting:script>
+				</scripting:transformer>
+
+                <transformer ref="MapToAddressTransformer" />
+			</when>
+			<otherwise>
+				<logger level="INFO" message="No adddress check for unregistered address"/>
+                <expression-transformer expression="#[groovy:  new groovy.json.JsonSlurper().parseText(payload?.toString()) as Map]" />
+                <transformer ref="MapToAddressTransformer"/>
+			</otherwise>
+		</choice>		
+    </flow>   
+   
+</mule>

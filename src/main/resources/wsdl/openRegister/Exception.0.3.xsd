@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://schema.middleware.opr.electrol.com/Exception/0/3" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:excp="http://schema.middleware.opr.electrol.com/Exception/0/3" xmlns:msge="http://schema.middleware.opr.electrol.com/MessageExchange/0/5">
+	<xs:import namespace="http://schema.middleware.opr.electrol.com/MessageExchange/0/5" schemaLocation="MessageExchange.0.5.xsd"/>
+	<xs:complexType name="MiddlewareExceptionType">
+		<xs:sequence>
+			<xs:element name="responseException" type="msge:ResponseException" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

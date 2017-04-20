@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:appc="http://schema.middleware.opr.electrol.com/OpenRegister/0/1" xmlns:msge="http://schema.middleware.opr.electrol.com/MessageExchange/0/5" xmlns:excp="http://schema.middleware.opr.electrol.com/Exception/0/3" xmlns:commons="http://schema.middleware.opr.electrol.com/Commons/0/6" targetNamespace="http://schema.middleware.opr.electrol.com/OpenRegister/0/1" elementFormDefault="qualified">
+    <xs:annotation>
+        <xs:documentation>The OpenRegister  schema represents a message exchange to trigger the addition of a charges (usually OTC's) to a customer billing account.
+
+            Author: Sandeep Kotha
+            Email: sandeep.kotha@ricston.com
+            Date Created:18/04/2017
+            Last Updated:18/04/2017
+        </xs:documentation>
+    </xs:annotation>
+    <xs:import namespace="http://schema.middleware.opr.electrol.com/Commons/0/6" schemaLocation="Commons.0.6.xsd"/>
+    <xs:import namespace="http://schema.middleware.opr.electrol.com/Exception/0/3" schemaLocation="Exception.0.3.xsd"/>
+    <xs:import namespace="http://schema.middleware.opr.electrol.com/MessageExchange/0/5" schemaLocation="MessageExchange.0.5.xsd"/>
+    <xs:complexType name="OpenRegisterRequestType">
+        <xs:sequence>
+            <xs:element name="requestHeader" type="msge:RequestHeader" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="requestExecute" type="appc:ExecuteRequest" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="OpenRegisterResponseType">
+        <xs:sequence>
+            <xs:element name="responseHeader" type="msge:ResponseHeader"/>
+            <xs:element name="responseExecute" type="appc:ExecuteResponse" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="OpenRegisterExceptionType">
+        <xs:complexContent>
+            <xs:extension base="excp:MiddlewareExceptionType">
+                <xs:sequence>
+                    <xs:element name="responseHeader" type="msge:ResponseHeader" minOccurs="1" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="OpenRegisterRequest" type="appc:OpenRegisterRequestType"/>
+    <xs:element name="OpenRegisterResponse" type="appc:OpenRegisterResponseType"/>
+    <xs:element name="OpenRegisterException" type="appc:OpenRegisterExceptionType"/>
+    <xs:complexType name="ExecuteRequest">
+        <xs:sequence>
+
+            <xs:element name="voter" type="appc:VoterDetails" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="contactDetails" type="appc:contactDetails" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="residenceAddresses" type="appc:Address" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="Action">
+        <xs:annotation>
+            <xs:documentation>Should register or unregister</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="REGISTER"/>
+            <xs:enumeration value="UNREGISTER"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="ExecuteResponse">
+        <xs:sequence>
+            <xs:element name="responseStatus" type="msge:ResponseStatus" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="Country">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ENGLAND"/>
+            <xs:enumeration value="SCOTLAND"/>
+            <xs:enumeration value="WALES"/>
+            <xs:enumeration value="NORTHERN_IRELAND"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="VoterDetails">
+        <xs:sequence>
+            <xs:element name="firstName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="middleName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="lastName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="dob" type="xs:date" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="gender" type="appc:Gender" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="nationality" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="ni" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="isNIValid" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="niCheckRef" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="vote" type="appc:Vote" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="Gender">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="MALE"/>
+            <xs:enumeration value="FEMALE"/>
+            <xs:enumeration value="OTHERS"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="contactDetails">
+        <xs:sequence>
+            <xs:element name="email" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="phone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="preferredContact" type="appc:ContactMode" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="ContactMode">
+        <xs:annotation>
+            <xs:documentation>preferred Contact Mode</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="PHONE"/>
+            <xs:enumeration value="EMAIL"/>
+            <xs:enumeration value="POST"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Vote">
+        <xs:annotation>
+            <xs:documentation>This attribute represents how a voter want to cast ones vote.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="mode" type="appc:VoteMode" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="pva" type="appc:PVA" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="VoteMode">
+        <xs:annotation>
+            <xs:documentation>preferred Vote Mode</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="INPERSON"/>
+            <xs:enumeration value="POSTAL"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="PVA">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="EMAIL"/>
+            <xs:enumeration value="POST"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Address">
+        <xs:sequence>
+            <xs:element name="addressCheckRef" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="isValid" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="houseNumber" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="street" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="city" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="county" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="postCode" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="country" type="appc:Country" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="type" type="appc:Action" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+</xs:schema>

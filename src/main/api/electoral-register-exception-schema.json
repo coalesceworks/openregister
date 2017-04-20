@@ -1,0 +1,24 @@
+{
+  "title": "The electoral register",
+  "description": "Exception from electoral",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "uid": {
+      "description": "Unique correlation Id for client request",
+      "type": "string",
+      "maxLength": 128
+    },
+    "cause": {
+      "description": "Root cause of the error/exception",
+      "type": "string",
+      "maxLength": 128
+    },
+    "contactUs": {
+      "description": "point of contact to resolve the error/exception",
+      "type": "string",
+      "maxLength": 128
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "title": "The electoral register",
+  "description": "Register to vote",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "uid": {
+      "description": "Unique Id for client request",
+      "type": "string",
+      "maxLength": 128
+    },
+    "status": {
+      "description": "Registration status of the Client",
+      "enum": [
+        "ACKNOWLEDGED"
+      ]
+    }
+  }
+}

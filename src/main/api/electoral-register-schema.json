@@ -1,0 +1,193 @@
+{
+  "title": "The electoral register",
+  "description": "Register to vote",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "address": {
+      "type": "array",
+      "properties": {
+        "houseNumber": {
+          "description": "What is your houseNumber?",
+          "type": "string",
+          "maxLength": 128
+        },
+        "street": {
+          "description": "What is your street?",
+          "type": "string",
+          "maxLength": 128
+        },
+        "city": {
+          "description": "What is your city?",
+          "type": "string",
+          "maxLength": 128
+        },
+        "county": {
+          "description": "What is your state?",
+          "type": "string",
+          "maxLength": 128
+        },
+        "postCode": {
+          "description": "What is your nationality?",
+          "type": "string",
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "houseNumber",
+        "street",
+        "city",
+        "postCode"
+      ]
+    },
+    "vote": {
+      "type": "object",
+      "properties": {
+        "postalVote": {
+          "description": "Do you want to apply for a postal vote?",
+          "type": "boolean"
+        },
+        "pva": {
+          "description": "Do you want us to send you postal vote application form via email or post?",
+          "enum": [
+            "EMAIL",
+            "POST"
+          ]
+        }
+      },
+      "required": [
+        "postalVote"
+      ]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "uid":{
+      "description": "Unique correlation Id for a request",
+      "type": "string",
+      "maxLength": 128
+    },
+    "firstName": {
+      "description": "What is your First Name?",
+      "type": "string",
+      "maxLength": 128
+    },
+    "middleName": {
+      "description": "Your Middle Name",
+      "type": "string",
+      "maxLength": 128
+    },
+    "lastName": {
+      "description": "What is your Last Name?",
+      "type": "string",
+      "maxLength": 128
+    },
+    "dob": {
+      "description": "What is your date of birth? as YYYY-MM-DD",
+      "type": "string",
+      "pattern": "^[0-9]{4}-(((0[13578]|(10|12))-(0[1-9]|[1-2][0-9]|3[0-1]))|(02-(0[1-9]|[1-2][0-9]))|((0[469]|11)-(0[1-9]|[1-2][0-9]|30)))$"
+    },
+    "previousName": {
+      "type": "object",
+      "title": "previous name",
+      "description": "Have you ever changed your name? For example: marriage, deed poll. If yes tell us your previous name it will help us identify you",
+      "properties": {
+        "firstName": {
+          "description": "What was your First Name?",
+          "type": "string",
+          "maxLength": 128
+        },
+        "middleName": {
+          "description": "Your Middle Name",
+          "type": "string",
+          "maxLength": 128
+        },
+        "lastName": {
+          "description": "What was your Last Name?",
+          "type": "string",
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "firstName",
+        "lastName"
+      ]
+    },
+    "gender": {
+      "description": "What is your gender?",
+      "enum": [
+        "female",
+        "male",
+        "other"
+      ]
+    },
+    "nationality": {
+      "description": "What is your nationality?",
+      "type": "string",
+      "maxLength": 128
+    },
+    "ni": {
+      "description": "What is your National Insurance number?",
+      "type": "string",
+      "maxLength": 128
+    },
+    "email": {
+      "description": "What is your email address?",
+      "type": "string",
+      "format": "email",
+      "maxLength": 128
+    },
+    "phone": {
+      "description": "What is your phone number?",
+      "type": "string",
+      "maxLength": 128
+    },
+    "addresses": {
+      "type": "array",
+      "maxItems": 200,
+      "minItems": 1,
+      "description": "List of address you want to register or unregister",
+      "$ref": "#/definitions/address",
+      "action": {
+        "enum": [
+          "register",
+          "unregister"
+        ]
+      }
+    },
+    "secondAddress": {
+      "description": "Do you also live at a second address? - If you have 2 homes or student with home and term time etc",
+      "type": "boolean"
+    },
+    "country": {
+      "description": "Where do you live? England, Scotland,  Wales and  Northern Ireland",
+      "enum": [
+        "ENGLAND",
+        "SCOTLAND",
+        "WALES",
+        "NORTHERN_IRELAND"
+      ]
+    },
+    "vote": {
+      "description": "how do you want to cast your vote?",
+      "$ref": "#/definitions/vote"
+    },
+    "contactMe": {
+      "description": "How can we contact you?",
+      "enum": [
+        "EMAIL",
+        "PHONE",
+        "POST"
+      ]
+    }
+  },
+  "required": [
+    "firstName",
+    "lastName",
+    "dob",
+    "nationality",
+    "addresses",
+    "country",
+    "vote"
+  ]
+}

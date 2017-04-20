@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:context="http://www.springframework.org/schema/context" xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+      xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.8.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+	http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+	http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+	http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd 
+	http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+	http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+
+	<context:property-placeholder location="interview.properties"/>
+
+    <http:listener-config name="electoralRegister-httpListenerConfig" host="${elr.host}" port="${elr.port}" doc:name="HTTP Listener Configuration"/>
+    <http:request-config name="AddressCheckHttpConfig" host="${address.check.host}" port="${address.check.port}" doc:name="HTTP Request Configuration"/>
+    <http:request-config name="niHttpConfig" host="${ni.host}" port="${ni.port}" doc:name="HTTP Request Configuration"/>
+
+
+    <apikit:config name="electoralRegister-config" raml="electoralRegister.raml" consoleEnabled="true" consolePath="console" doc:name="Router"/>
+
+    <ws:consumer-config name="openRegisterWS" serviceAddress="${op.reg}" wsdlLocation="wsdl/openRegister/OpenRegisterService.1.0.wsdl"
+                        service="OpenRegisterService" port="Electoral"/>
+
+
+	<vm:connector name="electoralVMConn" doc:name="VM Connector for electrol Registration"/>
+	
+	
+	<vm:endpoint name="retainPayloadEPR" path="retainPayloadVM" connector-ref="electoralVMConn" exchange-pattern="request-response"/>
+	<vm:endpoint name="addressCheckEPR" path="addressCheckVM" connector-ref="electoralVMConn" exchange-pattern="request-response"/>
+	
+	
+	<object-to-string-transformer doc:name="Transform restponse to String" name="erToStringTrasformer" encoding="UTF-8"/>
+	
+
+</mule>

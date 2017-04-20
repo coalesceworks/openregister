@@ -1,0 +1,51 @@
+#%RAML 1.0
+title: The electoral register (sometimes called the electoral roll) lists the names and addresses of everyone registered to vote
+version: v1
+baseUri: http://0.0.0.0:8966/api/{version}
+mediaType: application/json
+types: 
+  register-request: !include electoral-register-schema.json
+  register-response: !include electoral-register-response-schema.json
+  register-exception: !include electoral-register-exception-schema.json
+  
+/register-to-vote:
+  post:
+    description: Use this service to apply to register to vote or to update your name, 
+                 address or other details on the electoral register or to change your voting preferences,
+                 for example to vote in person or by post
+    
+    body: 
+      application/json:
+        type: register-request
+        examples: 
+          with_second_address_and_postal_vote:  !include electoral-register-request.json
+          no_second_address_and_postal_vote: !include electoral-register-request-2.json
+          with_second_address_and_in_person_vote: !include electoral-register-request-4.json
+          no_second_address_and_in_person_vote: !include electoral-register-request-3.json
+    responses: 
+      202:
+        body: 
+          application/json:
+            type: register-response
+            examples: 
+              Recieved_Registration_Request:
+                  uid: 58f53cb49711ed6916a9d042,
+                  status: ACKNOWLEDGED
+      400:
+        body: 
+          application/json:
+            type: register-exception
+            examples: 
+              bad_request:
+                  uid: 58f53cb49711ed6916a9d042,
+                  cause: found Invalid content in the payload. Should you need more help refer api documentation or contact us,
+                  contactUs: support@anypoint.com
+      500:
+        body: 
+          application/json:
+            type: register-exception
+            examples:
+              internal_error:
+                  uid: 58f53cb49711ed6916a9d042,
+                  cause: could not handle your request,
+                  contactUs: support@anypoint.com

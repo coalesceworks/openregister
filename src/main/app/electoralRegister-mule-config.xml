@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+      xmlns:ws="http://www.mulesoft.org/schema/mule/ws" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+        http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <flow name="electoralRegister-main">
+        <http:listener config-ref="electoralRegister-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="electoralRegister-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="electoralRegister-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    
+    <flow name="post:/register-to-vote:application/json:electoralRegister-config">
+        <transformer ref="erToStringTrasformer"  doc:name="Transform Inbound Payload to String"/>
+        <message-properties-transformer scope="session" doc:name="uid in Session">
+            <add-message-property key="uid" value="#[json:uid]" />
+            <add-message-property key="contactUs" value="${support.contact}" />
+        </message-properties-transformer>
+
+        <scatter-gather>
+            <custom-aggregation-strategy class="com.mule.test.interview.OpenRegisterAggregationStrategy" />
+            <flow-ref name="validateAddressesSubFlow" doc:name="Validate Addresses"/>
+        	<flow-ref name="niCheckSubFlow" doc:name="Validate NI"/>
+        </scatter-gather>
+
+        <message-properties-transformer>
+            <delete-message-property key="MULE_CORRELATION_ID"/>
+            <delete-message-property key="MULE_REPLYTO"/>
+        </message-properties-transformer>
+
+        <ws:consumer config-ref="openRegisterWS" operation="OpenRegister" doc:name="Update to Open Register"/>
+
+        <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+        <set-payload value="#[groovy: groovy.json.JsonOutput.toJson(['uid':sessionVars.uid,
+            'status': 'ACKNOWLEDGED'])]" doc:name="Set Response Payload"/>
+
+        <choice-exception-strategy>
+            <catch-exception-strategy>
+                <logger level="ERROR" message="exception occured due to #[payload]" />
+
+                <set-property propertyName="http.status" value="#[500]" doc:name="500 status in response header" />
+                <set-property propertyName="Content-Type" value="application/json" doc:name="Content-Type - application/json in response header" />
+                <set-property propertyName="contactUs" value="${support.contact}" doc:name="support contact" />
+                <set-payload value="#[{'uid':sessionVars.uid,
+                'cause': 'could not handle your request',
+                'contactUs' : sessionVars.contactUs}]" doc:name="Copy_of_Set Payload"/>
+
+                <set-payload value="#[groovy: groovy.json.JsonOutput.toJson(payload)]" doc:name="Set Exception Payload"/>
+
+            </catch-exception-strategy>
+        </choice-exception-strategy>
+
+    </flow>
+    
+    <sub-flow name="validateAddressesSubFlow">
+    	<splitter expression="#[json:addresses]" doc:name="Split each address"/>
+        <vm:outbound-endpoint ref="addressCheckEPR" exchange-pattern="request-response"/>
+        <collection-aggregator doc:name="Collect all payloads after address check"/>
+        <expression-transformer expression="#[groovy: ['validateAddress': payload] as Map]"/>
+		<logger level="INFO" message="aggregated payload #[payload.getClass()]"/>
+    </sub-flow>
+    
+    <apikit:mapping-exception-strategy name="electoralRegister-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="#[groovy: groovy.json.JsonOutput.toJson(['uid':flowVars.uid,
+            'cause': 'found Invalid content in the payload. Should you need more help refer api documentation or contact us',
+            'contactUs' : ${support.contact}])]" doc:name="Set Exception Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>

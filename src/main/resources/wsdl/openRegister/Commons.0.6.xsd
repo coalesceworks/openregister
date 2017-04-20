@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:commons="http://schema.middleware.opr.electrol.com/Commons/0/6" targetNamespace="http://schema.middleware.opr.electrol.com/Commons/0/6" elementFormDefault="qualified">
+	<xs:simpleType name="System">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="BPMS">
+				<xs:annotation>
+					<xs:documentation>Business Process Management</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="FAULT_WIZARD">
+				<xs:annotation>
+					<xs:documentation>Global FAULT Handler</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="PCM">
+				<xs:annotation>
+					<xs:documentation>Product Catalogue Management</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="DIGITAL_OR">
+				<xs:annotation>
+					<xs:documentation>Digital Open Registry</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ORES">
+				<xs:annotation>
+					<xs:documentation>Open Registry Electoral  Service</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="CustomerIdentification">
+		<xs:annotation>
+			<xs:documentation>this is true for all cases but may not Exception </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="customerIdentifier" type="xs:string" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>This is a unique identifier for the customer</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="contactIdentifier" type="xs:string" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>This is a unique contact  identifier for the customer</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="InternalSystem">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="BPMS">
+				<xs:annotation>
+					<xs:documentation>Business Process Management</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="FAULT_WIZARD">
+				<xs:annotation>
+					<xs:documentation>Global FAULT Handler</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="PCM">
+				<xs:annotation>
+					<xs:documentation>Product Catalogue Management</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="DIGITAL_OR">
+				<xs:annotation>
+					<xs:documentation>Digital Open Registry</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ORES">
+				<xs:annotation>
+					<xs:documentation>Open Registry Electoral  Service</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ExternalSystem">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="REGNET">
+				<xs:annotation>
+					<xs:documentation>REGNET third party app</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="DPI">
+				<xs:annotation>
+					<xs:documentation>DPI third party app</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="OCR_SERVER">
+				<xs:annotation>
+					<xs:documentation>OCR cloud service</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ExchangeSystem">
+		<xs:annotation>
+			<xs:documentation>This is a union of Activation (Controller Managers)</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="BPMS">
+				<xs:annotation>
+					<xs:documentation>Business Process Management</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="FAULT_WIZARD">
+				<xs:annotation>
+					<xs:documentation>Global FAULT Handler</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="PCM">
+				<xs:annotation>
+					<xs:documentation>Product Catalogue Management</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="DIGITAL_OR">
+				<xs:annotation>
+					<xs:documentation>Digital Open Registry</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ORES">
+				<xs:annotation>
+					<xs:documentation>Open Registry Electoral  Service</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="REGNET">
+				<xs:annotation>
+					<xs:documentation>REGNET third party app</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="DPI">
+				<xs:annotation>
+					<xs:documentation>DPI third party app</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="OCR_SERVER">
+				<xs:annotation>
+					<xs:documentation>OCR cloud service</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Events">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ACKNOWLEDGED"/>
+			<xs:enumeration value="CANCEL_REQUEST"/>
+			<xs:enumeration value="CANCELLED"/>
+			<xs:enumeration value="COMMITTED"/>
+			<xs:enumeration value="COMPLETED"/>
+			<xs:enumeration value="DISPATCHED"/>
+			<xs:enumeration value="FAILED"/>
+			<xs:enumeration value="ISSUED"/>
+			<xs:enumeration value="PARTIALLY_COMPLETED"/>
+			<xs:enumeration value="PLACED"/>
+			<xs:enumeration value="PRE_DISPATCH"/>
+			<xs:enumeration value="REJECTED"/>
+			<xs:enumeration value="DELAYED"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="DateTimePeriod">
+		<xs:sequence>
+			<xs:element name="start" type="xs:dateTime" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="end" type="xs:dateTime" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DatePeriod">
+		<xs:sequence>
+			<xs:element name="start" type="xs:date" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="end" type="xs:date" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TimePeriod">
+		<xs:sequence>
+			<xs:element name="start" type="xs:time" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="end" type="xs:time" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="ChannelTypes">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="GOV Portal"/>
+			<xs:enumeration value="Internal"/>
+			<xs:enumeration value="MOBILE"/>
+			<xs:enumeration value="SelfCare"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CustomerTypes">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="B2B"/>
+			<xs:enumeration value="B2C"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

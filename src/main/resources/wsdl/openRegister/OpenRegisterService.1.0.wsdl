@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:aotc="http://schema.middleware.opr.electrol.com/OpenRegister/0/1"
+                  xmlns:tns="http://service.middleware.opr.electrol.com/OpenRegister/1/0"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:ns="http://schema.middleware.opr.electrol.com/MessageExchange/0/1"
+                  xmlns:ns1="http://schema.middleware.opr.electrol.com/Commons/0/1"
+                  name="OpenRegisterService"
+                  targetNamespace="http://service.middleware.opr.electrol.com/OpenRegister/1/0">
+<wsdl:documentation>
+		The Open register is one of the capabilities provided by the electoral Umbrella service. It lists the names and addresses of everyone registered to vote
+
+		Author: Sandeep Kotha
+		Email: sandeep.kotha@ricston.com
+		Date Created:18/04/2017
+		Last Updated:18/04/2017
+	</wsdl:documentation>
+	<wsdl:types>
+		<xs:schema targetNamespace="http://service.middleware.opr.electrol.com/OpenRegister/1/0">
+			<xs:import namespace="http://schema.middleware.opr.electrol.com/OpenRegister/0/1" schemaLocation="OpenRegister.0.1.xsd"/>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="OpenRegisterOutput">
+		<wsdl:part name="ResponseParam" element="aotc:OpenRegisterResponse"/>
+	</wsdl:message>
+	<wsdl:message name="OpenRegisterInput">
+		<wsdl:part name="InputParam" element="aotc:OpenRegisterRequest"/>
+	</wsdl:message>
+	<wsdl:message name="OpenRegisterFault">
+		<wsdl:part name="FaultParam" element="aotc:OpenRegisterException"/>
+	</wsdl:message>
+	<wsdl:portType name="ElectoralPortType">
+		<wsdl:operation name="OpenRegister">
+			<wsdl:input name="RequestMessage" message="tns:OpenRegisterInput"/>
+			<wsdl:output name="ResponseMessage" message="tns:OpenRegisterOutput"/>
+			<wsdl:fault name="FaultMessage" message="tns:OpenRegisterFault"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="OpenRegisterBinding" type="tns:ElectoralPortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="OpenRegister">
+			<soap:operation soapAction="/OpenRegister" style="document"/>
+			<wsdl:input name="RequestMessage">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="ResponseMessage">
+				<soap:body use="literal"/>
+			</wsdl:output>
+			<wsdl:fault name="FaultMessage">
+				<soap:fault name="FaultMessage" use="literal"/>
+			</wsdl:fault>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="OpenRegisterService">
+		<wsdl:port name="Electoral" binding="tns:OpenRegisterBinding">
+			<soap:address location="http://electrol:8006/services/OpenRegister_V0_1"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>
