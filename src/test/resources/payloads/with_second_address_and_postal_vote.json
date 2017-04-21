@@ -1,0 +1,43 @@
+{
+  "uid": "58f53cb49711ed6916a9d042",
+  "dob": "1998-03-14",
+  "nationality": "Australia",
+  "ni": "JG103759A",
+  "email": "gordon.poole@gmail.com",
+  "firstName": "Gordon",
+  "lastName": "Poole",
+  "phone": "+44 (939) 528-3421",
+  "addresses": [
+    {
+      "action": "register",
+      "postCode": "ER0 7YT",
+      "county": "Palau",
+      "city": "Imperial",
+      "street": "Conduit Boulevard",
+      "houseNumber": 32
+    },
+    {
+      "action": "register",
+      "postCode": "ER0 7YT",
+      "county": "Louisiana",
+      "city": "Monument",
+      "street": "Marconi Place",
+      "houseNumber": 31
+    },
+    {
+      "action": "register",
+      "postCode": "TY5 54RY",
+      "county": "Minnesota",
+      "city": "Elwood",
+      "street": "Creamer Street",
+      "houseNumber": 39
+    }
+  ],
+  "secondAddress": true,
+  "country": "NORTHERN_IRELAND",
+  "vote": {
+    "pva": "EMAIL",
+    "postalVote": true
+  },
+  "contactMe": "PHONE"
+}

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:mock="http://www.mulesoft.org/schema/mule/mock"
+      xmlns:spring="http://www.springframework.org/schema/beans" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+    http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+    http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+    http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <munit:config name="munit" doc:name="MUnit configuration" mock-connectors="false" mock-inbounds="false"/>
+
+    <spring:beans>
+        <spring:import resource="classpath:global_connectors-mule-config.xml"/>
+        <spring:import resource="classpath:ni_check-mule-config.xml"/>
+        <spring:import resource="classpath:address_check-mule-config.xml"/>
+        <spring:import resource="classpath:electoralRegister-mule-config.xml"/>
+
+        <spring:bean class="com.mule.test.interview.assertion.XMLAssertion" name="openRegisterAssertion">
+            <spring:property name="expected" value="classpath:payloads/reqToOpenRegistry.xml"/>
+        </spring:bean>
+
+        <spring:bean class="com.mule.test.interview.assertion.XMLAssertion" name="addressCheckReqAssertion">
+            <spring:property name="expected" value="classpath:payloads/addressCheck.xml"/>
+        </spring:bean>
+    </spring:beans>
+
+
+
+    <!--<munit:test name="functional-test-suite-niCheckSubFlowTest" description="Test">
+        <flow-ref name="niCheckSubFlow" doc:name="Flow-ref to niCheckSubFlow"/>
+    </munit:test>
+    <munit:test name="functional-test-suite-electoralRegister-mainTest" description="Test">
+        <flow-ref name="electoralRegister-main" doc:name="Flow-ref to electoralRegister-main"/>
+    </munit:test> -->
+    <munit:test name="functional-test-suite-post:/register-to-vote:application/json:electoralRegister-configTest" description="Test">
+
+        <mock:when messageProcessor="http:request">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Address Check Service']" />
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('payloads/addressDetails.xml').asString()]">
+                <mock:outbound-properties>
+                    <mock:outbound-property key="Content-Type" value="application/xml" />
+                </mock:outbound-properties>
+            </mock:then-return>
+        </mock:when>
+
+        <mock:spy messageProcessor="http:request" >
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Address Check Service']"/>
+            </mock:with-attributes>
+
+            <mock:assertions-before-call>
+                <munit:run-custom assertion-ref="addressCheckReqAssertion" />
+            </mock:assertions-before-call>
+        </mock:spy>
+
+        <mock:when messageProcessor="http:request">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['NI Check Service']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('payloads/niCheck.json').asString()]">
+                <mock:outbound-properties>
+                    <mock:outbound-property key="Content-Type" value="application/json" />
+                </mock:outbound-properties>
+            </mock:then-return>
+        </mock:when>
+        <mock:when messageProcessor="ws:consumer">
+            <mock:with-attributes>
+                <mock:with-attribute name="operation" whereValue="#['OpenRegister']" />
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('payloads/openRegisterResponse.xml').asString()]">
+                <mock:outbound-properties>
+                    <mock:outbound-property key="Content-Type" value="application/xml" />
+                </mock:outbound-properties>
+            </mock:then-return>
+        </mock:when>
+
+        <mock:spy messageProcessor="ws:consumer" >
+            <mock:with-attributes>
+                <mock:with-attribute name="operation" whereValue="#['OpenRegister']"/>
+            </mock:with-attributes>
+
+            <mock:assertions-before-call>
+                <munit:run-custom assertion-ref="openRegisterAssertion" />
+            </mock:assertions-before-call>
+        </mock:spy>
+
+        <set-payload value="#[getResource('payloads/with_second_address_and_postal_vote.json').asString()]" />
+
+        <flow-ref name="post:/register-to-vote:application/json:electoralRegister-config" doc:name="Flow-ref to post:/register-to-vote:application/json:electoralRegister-config"/>
+        <munit:assert-on-equals expectedValue="#[getResource('payloads/ElectrolResponse.json').asString()]" actualValue="#[payload]" doc:name="Assert Equals" />
+        <mock:verify-call messageProcessor="http:request" atLeast="1" atMost="1">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['NI Check Service']"/>
+            </mock:with-attributes>
+        </mock:verify-call>
+
+    </munit:test>
+
+    <munit:test name="functional-test-suite-Exception-Flow-Test" description="Test">
+        <set-payload value="#[getResource('payloads/with_second_address_and_postal_vote.json').asString()]" />
+
+        <flow-ref name="post:/register-to-vote:application/json:electoralRegister-config" doc:name="Flow-ref to post:/register-to-vote:application/json:electoralRegister-config"/>
+        <munit:assert-on-equals expectedValue="#[getResource('payloads/electrolRegistrationException.json').asString()]" actualValue="#[payload]" doc:name="Assert Equals" />
+    </munit:test>
+    <!--<munit:test name="functional-test-suite-validateAddressesSubFlowTest" description="Test">
+        <flow-ref name="validateAddressesSubFlow" doc:name="Flow-ref to validateAddressesSubFlow"/>
+    </munit:test>
+
+    <munit:test name="functional-test-suite-AddressCheckFlowTest" description="Test">
+        <flow-ref name="AddressCheckFlow" doc:name="Flow-ref to AddressCheckFlow"/>
+    </munit:test> -->
+</mule>

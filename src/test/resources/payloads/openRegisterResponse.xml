@@ -1,0 +1,18 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://schema.middleware.opr.electrol.com/OpenRegister/0/1" xmlns:ns1="http://schema.middleware.opr.electrol.com/MessageExchange/0/5">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ns:OpenRegisterResponse>
+            <ns:responseHeader>
+                <ns1:requestId>12344</ns1:requestId>
+                <ns1:responseId>cdfdrt57432</ns1:responseId>
+                <ns1:issueDateTime>2017-04-20T01:53:00.230+01:00</ns1:issueDateTime>
+                <ns1:receivedDateTime>2017-04-20T01:53:00.230+01:00</ns1:receivedDateTime>
+                <ns1:source>ORES</ns1:source>
+                <ns1:destination>DIGITAL_OR</ns1:destination>
+            </ns:responseHeader>
+            <ns:responseExecute>
+                <ns:responseStatus>Acknowledged</ns:responseStatus>
+            </ns:responseExecute>
+        </ns:OpenRegisterResponse>
+    </soapenv:Body>
+</soapenv:Envelope>
